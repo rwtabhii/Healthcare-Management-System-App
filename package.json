@@ -1,0 +1,27 @@
+{
+  "name": "healthcare-management-system-app",
+  "version": "1.0.0",
+  "description": "This is a Backend project using Node.js Express.js with MongoDB Database & using the RestApi architecture.",
+  "type" : "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rwtabhii/Healthcare-Management-System-App.git"
+  },
+  "author": "Abhishek Rawat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rwtabhii/Healthcare-Management-System-App/issues"
+  },
+  "homepage": "https://github.com/rwtabhii/Healthcare-Management-System-App#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.2",
+    "nodemailer": "^7.0.6",
+    "nodemon": "^3.1.10"
+  }
+}
