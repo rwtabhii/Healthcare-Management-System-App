@@ -2,7 +2,7 @@
   "name": "healthcare-management-system-app",
   "version": "1.0.0",
   "description": "This is a Backend project using Node.js Express.js with MongoDB Database & using the RestApi architecture.",
-  "type" : "module",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/rwtabhii/Healthcare-Management-System-App#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.18.2",
     "nodemailer": "^7.0.6",
