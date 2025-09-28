@@ -1,3 +1,5 @@
+import axios from "axios"
+
 export const sendSMS = async (mobile, otp) => {
     let response;
     // 'https://www.fast2sms.com/dev/bulkV2?authorization=sF7pv9an7OteS9APDCI7MmMJSu0lLybvFjR9VXN47MvcclP5FwifGjMHkIqZ&route=q&message=&flash=0&numbers=&schedule_time='
