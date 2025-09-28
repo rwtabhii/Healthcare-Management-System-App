@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from '../schemas/userSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendEmail, generateOTP, sendSMS } from '../config/helper_functions.js';

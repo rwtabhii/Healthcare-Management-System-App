@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { checkAuthenticaion } from "../middlewares/jwtAuth";
 
 export const userRoute = Router();
 
