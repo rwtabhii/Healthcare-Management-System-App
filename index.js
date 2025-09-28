@@ -6,7 +6,7 @@ import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { signup, signin, 
-    signout, sendOtpForVerifyingEmail, 
+    signout, sendOtpForVerifyingEmail,   
     verifyEmail, sendOtpForVerifyingMobile, 
     verifyMobile } from './controllers/auth_controllers.js';
 import { checkAuthenticaion } from './middlewares/auth_middleware.js';
@@ -19,7 +19,7 @@ import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
     REDIRECT_URI, JWT_SECRET } from './config/constants.js';
 import axios from 'axios';
 import qs from 'querystring';
-import User from './models/user.js'; // Import the User model
+import User from './schemas/userSchema.js';// Import the User model
 import Session from './models/sessions.js'; // Import the Session model
 import { signinHelperFunction } from './config/helper_functions.js'; // Import the helper function
 
@@ -27,6 +27,7 @@ import './config/mongoose.js'; // import the mongoose config file
 import './config/nodemailer.js'; // import the nodemailer config file
 import { connectToDb } from './config/dbConfig.js';
 import { userRoute } from './routes/userRoutes.js';
+import { doctorRoute } from './routes/doctorRoutes.js';
 
 app.use(express.json());
 app.use(cookieParser());
@@ -35,14 +36,13 @@ app.use(cookieParser());
 app.use("api/users",userRoute);
 
 
-app.post('/add-doctors', addDoctors);
-app.get('/add-tokens', addTokensForAllDoctors);
+app.use("api/doctor",doctorRoute);
 
-app.get('/search-doctors', searchDoctors);
-app.post('/doctors/add-feedback', acceptFeeback);
-app.post('/doctors/set-available-slots', setAvailableSlots);
 
-app.post('/book-appointment', checkAuthenticaion, bookAppointment);
+
+
+
+
 
 //   OAuth implementation
 // this will be called when someone clicks on "continue with gogle"
