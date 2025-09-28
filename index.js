@@ -2,25 +2,13 @@
 import express from 'express';
 // import cors from 'cors'; // Uncomment this line if you want to use CORS
 const app = express();
-import bcrypt from "bcrypt"
-import jwt from 'jsonwebtoken';
+
 import cookieParser from 'cookie-parser';
-import { signup, signin, 
-    signout, sendOtpForVerifyingEmail,   
-    verifyEmail, sendOtpForVerifyingMobile, 
-    verifyMobile } from './controllers/auth_controllers.js';
-import { checkAuthenticaion } from './middlewares/auth_middleware.js';
-import { addDoctors, addTokensForAllDoctors, 
-    searchDoctors, acceptFeeback, 
-    setAvailableSlots
- } from './controllers/doctor_controllers.js';
-import { bookAppointment } from './controllers/patient_controllers.js';
+
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, 
     REDIRECT_URI, JWT_SECRET } from './config/constants.js';
 import axios from 'axios';
 import qs from 'querystring';
-import User from './schemas/userSchema.js';// Import the User model
-import Session from './models/sessions.js'; // Import the Session model
 import { signinHelperFunction } from './config/helper_functions.js'; // Import the helper function
 
 import './config/mongoose.js'; // import the mongoose config file
@@ -32,10 +20,9 @@ import { doctorRoute } from './routes/doctorRoutes.js';
 app.use(express.json());
 app.use(cookieParser());
 
-// user routes
+// user route
 app.use("api/users",userRoute);
-
-
+// user appointment and doctor Routes
 app.use("api/doctor",doctorRoute);
 
 
