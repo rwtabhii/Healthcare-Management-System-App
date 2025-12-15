@@ -1,5 +1,5 @@
 {
-  "name": "healthcare-management-system-app",
+  "name": "healthcare-management-system-Backend",
   "version": "1.0.0",
   "description": "This is a Backend project using Node.js Express.js with MongoDB Database & using the RestApi architecture.",
   "type": "module",
@@ -24,7 +24,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.18.2",
-    "nodemailer": "^7.0.6",
-    "nodemon": "^3.1.10"
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "nodemailer": "^7.0.11"
   }
 }
