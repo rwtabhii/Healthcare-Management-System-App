@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+// relationship:
+// user 1 to M feedback
+// user  1 to m session
+// user  1 to M appointment
+//  feedback 1 to 1 appointment
+
+// creating the table model
+model User{
+  id  Int @id @default(autoincrement())
+  username String 
+  email  String @unique
+  description String?
+  mobile String
+  password String 
+  role Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+    // back relation
+  feedbackGivenBy  Feedback[] @relation("FeedbackGiven")
+  feedbackTakenBy  Feedback[] @relation("FeedbackTaken")
+  // session relation
+  session Session[]
+  // appointment relation
+   appointmentsAsDoctor   Appointment[] @relation("DoctorAppointments")
+  appointmentsAsPatient  Appointment[] @relation("PatientAppointments")
+
+
+}
+enum Role {
+doctor
+patient
+}
+
+model Feedback{
+ id        Int      @id @default(autoincrement())
+
+  // foreign keys (REAL columns)
+  givenById Int
+  takenById Int
+   appointmentId Int  @unique
+
+  // owning relations use case it just create a join for me no manully join is needed
+  givenBy   User @relation("FeedbackGiven", fields: [givenById], references: [id])
+  takenBy   User @relation("FeedbackTaken", fields: [takenById], references: [id])
+  
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  rating    Int
+  comment   String
+
+  createdAt DateTime @default(now())
+    
+}
+
+// session (for storing the token)
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token   String
+  startTime DateTime @default(now())
+  // relation
+   user      User     @relation(fields: [userId], references: [id])
+}
+
+
+model Appointment {
+  id         Int              @id @default(autoincrement())
+
+  // Foreign keys
+  doctorId   Int
+  patientId  Int
+
+   startTime DateTime
+  endTime   DateTime 
+
+  // Relations
+  doctor     User             @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  patient    User             @relation("PatientAppointments", fields: [patientId], references: [id])
+  feedback   Feedback? 
+
+  status     AppointmentStatus @default(pending)
+
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  @@unique([doctorId,startTime])
+}
+
+enum AppointmentStatus{
+  pending
+  completed
+  cancelled
+}
