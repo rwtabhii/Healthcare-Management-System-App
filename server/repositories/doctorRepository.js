@@ -1,6 +1,6 @@
-import User from "../models/User.js";
-import DoctorToken from "../models/DoctorToken.js";
-import Feedback from "../schemas/feedback.js";
+// import User from "../models/User.js";
+// import DoctorToken from "../models/DoctorToken.js";
+// import Feedback from "../schemas/feedback.js";
 
 export const DoctorRepository = {
     async addDoctor(doctorData) {

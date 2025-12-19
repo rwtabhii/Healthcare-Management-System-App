@@ -1,41 +1,47 @@
+import { prisma } from "../config/dbConfig.js";
+
 export const findUserByEmail = async (email) => {
-  return await User.findOne({ email });
+  return await prisma.user.findUnique({
+    where: { email }
+  })
 };
 
-export const createUser = async ({ username, email, password, type, mobile }) => {
-  const user = new User({ username, email, password, type, mobile });
-  return await user.save();
+export const createUser = async (data) => {
+  const newUser = await prisma.user.create({
+    data
+  })
+  return newUser;
 };
 
 export const createSession = async (userId, token) => {
-  const session = new Session({
-    userId,
-    token,
-    startTime: new Date(),
-  });
-  return await session.save();
+  return await prisma.session.create({
+    data: {
+      userId: userId,
+      token: token
+    }
+  })
 };
 
 
 export const deleteSessionByToken = async (token) => {
-  return await Session.deleteOne({ token });
+  return prisma.session.deleteMany({
+    where: { token }
+  })
 };
+
+export const doctorList = async () => {
+  return prisma.doctor.findMany()
+}
 
 export const saveOtpToUser = async (user, otp) => {
-    user.otp = otp;
-    await user.save();
-    return user;
-};
-export const saveUser = async (user) => {
-    return await user.save();
+  user.otp = otp;
+  await user.save();
+  return user;
 };
 
-export const findUserByMobile = async (mobile) => {
-    return await User.findOne({ mobile });
-};
 
 export const verifyUserMobile = async (user) => {
-    user.mobileVerified = true;
-    user.otp = undefined; // clear OTP
-    return await user.save();
+  user.mobileVerified = true;
+  user.otp = undefined; // clear OTP
+  return await user.save();
 };
