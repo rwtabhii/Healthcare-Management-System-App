@@ -1,48 +1,62 @@
-import User from '../schemas/userSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { sendEmail, generateOTP, sendSMS } from '../config/helper_functions.js';
-// import { OAuth2Client } from 'google-auth-library';
-// import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, 
-//     REDIRECT_URI
-//  } from '../config/constants.js';
-import Session from '../models/sessions.js';
-
-// const client = new OAuth2Client({
-//     clientId: GOOGLE_CLIENT_ID,
-//     clientSecret: GOOGLE_CLIENT_SECRET,
-//     redirectUri: REDIRECT_URI // Optional, depends on your app type
-// });
+import { env } from '../config/dotenv.js';
+import { findUserByEmail ,createUser,createSession,deleteSessionByToken,doctorList } from '../repositories/userRepository.js';
 
 export const signup = async (req, res) => {
-    const { username, email, password, type, mobile } = req.body;
+    // console.log(req.body)
+  const { username, email, password, mobile } = req.body;
 
-    try {
-        const userPresent = await findUserByEmail(email);
-        if (userPresent) {
-            return res.status(409).json({ error: "User with this email already exists" });
-        }
-
-        const newUser = await createUser({ username, email, password, type, mobile });
-
-        // Send welcome email
-        await sendEmail(
-            email,
-            "Welcome to our platform",
-            `You have signed up successfully. Please click <a href="http://localhost:3000/user/verify-email?email=${email}">here</a> to verify your email.`
-        );
-
-        return res.status(201).json({ message: "You have signed up successfully. Please signin now." });
-    } catch (error) {
-        return res.status(400).json({ error: "Error creating user" });
+  try {
+    // 1. Validate input (basic)
+    if (!username || !email || !password || !mobile) {
+      return res.status(400).json({ error: 'All fields are required' });
     }
+
+    // 2. Check existing user
+    const userPresent = await findUserByEmail(email);
+    if (userPresent) {
+      return res.status(409).json({
+        error: 'User with this email already exists'
+      });
+    }
+
+    // 3. Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4. Create user
+    await createUser({
+      username,
+      email,
+      password: hashedPassword,
+      mobile,
+      role: 'patient'
+    });
+
+    // Send welcome email // await sendEmail( // email,
+    //  // "Welcome to our platform", // You have signed up successfully. 
+    // Please click <a href="http://localhost:3000/user/verify-email?email=${email}">here</a> to verify your email. // );
+
+    return res.status(201).json({
+      message: 'You have signed up successfully. Please sign in now.'
+    });
+
+  } catch (error) {
+    console.error('Signup error:', error);
+
+    return res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
 };
 
 export const signin = async (req, res) => {
+    // console.log(req.body)
     const { email, password } = req.body;
 
     try {
         const user = await findUserByEmail(email);
+        // console.log(user);
         if (!user) {
             return res.status(404).json({ error: "No user found with this Email ID" });
         }
@@ -53,11 +67,11 @@ export const signin = async (req, res) => {
         }
 
         // Create JWT token
-        const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ email: user.email }, env.JWT_SECRET, { expiresIn: "1h" });
         res.cookie("token", token, { httpOnly: true });
 
         // Save session in DB
-        await createSession(user._id, token);
+        await createSession(user.id, token);
 
         return res.status(200).json({ message: "Signin successful", token });
     } catch (error) {
@@ -69,6 +83,7 @@ export const signin = async (req, res) => {
 export const signout = async (req, res) => {
     try {
         const token = req.cookies.token;
+        // console.log(token)
         if (!token) {
             return res.status(400).json({ error: "No token found" });
         }
@@ -82,6 +97,20 @@ export const signout = async (req, res) => {
         return res.status(500).json({ error: "Server error during signout" });
     }
 };
+export const allDoctorList=async(req,res,next)=>{
+    try {
+        const data = await doctorList();
+        return res.status(200).json({
+            success : true,
+            data: data
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error during signout" });
+
+    }
+}
+
 export const sendOtpForVerifyingEmail = async (req, res) => {
     const otp = generateOTP();
     const email = req.query.email;

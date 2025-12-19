@@ -6,102 +6,125 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+    output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "mysql"
 }
-// relationship:
+// relationship of tables:
 // user 1 to M feedback
 // user  1 to m session
 // user  1 to M appointment
 //  feedback 1 to 1 appointment
 
 // creating the table model
-model User{
-  id  Int @id @default(autoincrement())
-  username String 
-  email  String @unique
-  description String?
-  mobile String
-  password String 
-  role Role
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  mobile    String?
+  role      Role
+
+  doctor    Doctor?
+  patient   Patient?
+
+  session   Session[]
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-    // back relation
-  feedbackGivenBy  Feedback[] @relation("FeedbackGiven")
-  feedbackTakenBy  Feedback[] @relation("FeedbackTaken")
-  // session relation
-  session Session[]
-  // appointment relation
-   appointmentsAsDoctor   Appointment[] @relation("DoctorAppointments")
-  appointmentsAsPatient  Appointment[] @relation("PatientAppointments")
-
-
+  updatedAt DateTime @updatedAt 
 }
+
 enum Role {
-doctor
-patient
+  ADMIN
+  DOCTOR
+  PATIENT
 }
 
-model Feedback{
- id        Int      @id @default(autoincrement())
+model Doctor {
+  id           Int    @id @default(autoincrement())
+  userId       Int    @unique
+  description  String?
+  specialization String?
+  experience   Int?
+  consultationFee Int?
+isActive        Boolean @default(true)
 
-  // foreign keys (REAL columns)
-  givenById Int
-  takenById Int
-   appointmentId Int  @unique
+  user         User   @relation(fields: [userId], references: [id])
 
-  // owning relations use case it just create a join for me no manully join is needed
-  givenBy   User @relation("FeedbackGiven", fields: [givenById], references: [id])
-  takenBy   User @relation("FeedbackTaken", fields: [takenById], references: [id])
-  
+  appointments Appointment[] @relation("DoctorAppointments")
+  feedbackTaken Feedback[]   @relation("FeedbackTaken")
+}
+model Patient {
+  id              Int    @id @default(autoincrement())
+  userId          Int    @unique
+  age             Int?
+  gender          String?
+  medicalHistory  String?
+
+  user            User   @relation(fields: [userId], references: [id])
+
+  appointments    Appointment[] @relation("PatientAppointments")
+  feedbackGiven   Feedback[]    @relation("FeedbackGiven")
+}
+
+
+model Feedback {
+  id            Int @id @default(autoincrement())
+
+  givenById     Int
+  takenById     Int
+  appointmentId Int @unique
+
+  givenBy       Patient @relation("FeedbackGiven", fields: [givenById], references: [id])
+  takenBy       Doctor  @relation("FeedbackTaken", fields: [takenById], references: [id])
+
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
 
-  rating    Int
-  comment   String
+  rating        Int
+  comment       String
 
-  createdAt DateTime @default(now())
-    
+  createdAt     DateTime @default(now())
 }
 
-// session (for storing the token)
 
+// session (for storing the token)
 model Session {
   id        Int      @id @default(autoincrement())
   userId    Int
-  token   String
+  token     String @unique
   startTime DateTime @default(now())
-  // relation
-   user      User     @relation(fields: [userId], references: [id])
+
+  user      User     @relation(fields: [userId], references: [id])
 }
+
 
 
 model Appointment {
-  id         Int              @id @default(autoincrement())
+  id         Int @id @default(autoincrement())
 
-  // Foreign keys
   doctorId   Int
   patientId  Int
 
-   startTime DateTime
-  endTime   DateTime 
+  startTime  DateTime
+  endTime    DateTime
 
-  // Relations
-  doctor     User             @relation("DoctorAppointments", fields: [doctorId], references: [id])
-  patient    User             @relation("PatientAppointments", fields: [patientId], references: [id])
-  feedback   Feedback? 
+  doctor     Doctor  @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  patient    Patient @relation("PatientAppointments", fields: [patientId], references: [id])
 
-  status     AppointmentStatus @default(pending)
+  feedback   Feedback?
 
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  @@unique([doctorId,startTime])
+  status     AppointmentStatus @default(PENDING)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([doctorId, startTime])
 }
 
-enum AppointmentStatus{
-  pending
-  completed
-  cancelled
+enum AppointmentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
